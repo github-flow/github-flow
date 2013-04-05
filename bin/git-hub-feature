@@ -6,6 +6,12 @@ start(){
 	git checkout $branch
 }
 
+publish(){
+	cur_branch=$(git rev-parse --abbrev-ref HEAD)
+	branch=${1:-$cur_branch}
+	git push origin $branch
+}
+
 usage(){
 	echo "$0:	Manage a github flow feature."
 }
@@ -13,7 +19,8 @@ usage(){
 help(){
 	usage
 	echo ""
-	echo "	start: Begin working on a new feature."
+	echo "	start <branchname>: Begin working on a new feature."
+	echo "	publish [branchname]: Publish branch to origin. Defaults to current branch."
 	echo "	help: Show this message."
 }
 
@@ -21,6 +28,7 @@ command=${1:-usage}
 shift
 case "$command" in
 	s | start) start $@ ;;
+	p | publish) publish $@ ;;
 	h | help) help ;;
 	*) usage ;;
 esac
