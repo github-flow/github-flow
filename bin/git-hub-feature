@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 source git-hub-helpers
 
 # Begin working on a new feature
@@ -35,6 +37,7 @@ update(){
 	if [ $CUR_BRANCH != $BRANCH ] ; then
 		git checkout $CUR_BRANCH
 	fi
+
 	_stash_pop
 }
 
@@ -56,8 +59,11 @@ review(){
 
 	github /repos/$GH_UPSTREAM/pulls .tmp_pr_req >| .tmp_pr_res
 
+	cat .tmp_pr_res
+
 	PULL_NUMBER=$(github_pr_number $BRANCH)
 	PULL_URL="http://github.com/$GH_UPSTREAM/pull/$PULL_NUMBER"
+
 
 	echo "Pull request is at $PULL_URL"
 

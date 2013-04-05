@@ -25,7 +25,7 @@ github_put(){
 	AUTH="Authorization: token $(cat ~/.github_token)"
 	CURL="curl"
 
-	$CURL -X PUT -d "$2" -H "$AUTH" "$API$URL" 2>/dev/null
+	$CURL -X PUT -d "$2" -H "$AUTH" "$API$URL"
 }
 
 github_user(){
@@ -49,7 +49,6 @@ $(github /repos/$GH_UPSTREAM/pulls | json -a number head.label | grep "$GH_ORIGI
 EOF
 	echo $NUMBER
 }
-
 
 TIMES_STASHED=0
 _stash(){
