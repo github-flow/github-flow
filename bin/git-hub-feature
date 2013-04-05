@@ -1,0 +1,26 @@
+#!/bin/sh
+
+start(){
+	branch=$1
+	git branch $branch master
+	git checkout $branch
+}
+
+usage(){
+	echo "$0:	Manage a github flow feature."
+}
+
+help(){
+	usage
+	echo ""
+	echo "	start: Begin working on a new feature."
+	echo "	help: Show this message."
+}
+
+command=${1:-usage}
+shift
+case "$command" in
+	s | start) start $@ ;;
+	h | help) help ;;
+	*) usage ;;
+esac
