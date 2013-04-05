@@ -1,6 +1,10 @@
 #!/bin/bash
 
 API="https://api.github.com"
+# Run a GET or POST request against the Github API
+# First param is the API endpoint to hit
+# Second param is an optional filename to use as the data.
+# Handles auth.
 github(){
 	URL=$1
 	DATA=$2
@@ -14,6 +18,7 @@ github(){
 	$CURL -H "$AUTH" "$API$URL" 2>/dev/null
 }
 
+# Run a PUT request against Github, with no data in the body.
 github_put(){
 	URL=$1
 
@@ -36,6 +41,7 @@ github_login(){
 	curl -u $(github_user) -d '{"scopes":["repo"],"note":"git-hub-flow"}' $API/authorizations | json token >| ~/.github_token
 }
 
+# Find the pr number from the current branch.
 github_pr_number(){
 	BRANCH=$1
 	read NUMBER LABEL <<EOF
