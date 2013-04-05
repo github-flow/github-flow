@@ -1,31 +1,35 @@
 #!/bin/bash
 
+source git-hub-helpers
+
 start(){
 	BRANCH=$1
-	git branch $BRANCH master
+	git branch $BRANCH $MASTER
 	git checkout $BRANCH
 }
 
 publish(){
 	CUR_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 	BRANCH=${1:-$CUR_BRANCH}
-	git push origin $BRANCH
+	git push $ORIGIN $BRANCH
 }
 
 update(){
 	CUR_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 	git stash
 	BRANCH=${1:-$CUR_BRANCH}
-	git checkout master
-	git pull --rebase origin master
+
+	git checkout $MASTER
+	git pull --rebase $UPSTREAM $MASTER
 	git checkout $BRANCH
-	git rebase master
+	git rebase $MASTER
+
 	git checkout $CUR_BRANCH
 	git stash pop
 }
 
 usage(){
-	echo "$0:	Manage a github flow feature."
+	echo "$0:	Manage a github flow features."
 }
 
 help(){

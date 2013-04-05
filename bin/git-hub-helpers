@@ -1,0 +1,5 @@
+#!/bin/bash
+
+ORIGIN=origin
+UPSTREAM=origin
+MASTER=master
