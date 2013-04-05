@@ -1,0 +1,39 @@
+#!/bin/bash
+
+set -x
+
+source git-hub-helpers
+
+clone(){
+	FULL_REPO=$1
+	REPO=$(echo $FULL_REPO | awk -F/ '{print $2}')
+	USER=$(github_user)
+
+	github /repos/$FULL_REPO/forks .tmp_fork
+
+	git clone git@github.com:$USER/$REPO.git
+	cd $REPO
+	git remote add upstream git@github.com/$FULL_REPO.git
+
+	git config --local --add github-flow.origin origin
+	git config --local --add github-flow.upstream upstream
+	git config --local --add github-flow.master master
+
+	echo "Repo cloned into $(pwd)"
+}
+
+usage(){
+	echo "$0 <org/repo>:	Initialize a new working repository, and set git-hubflow configurations."
+}
+
+help(){
+	usage
+	echo ""
+	echo "	<org/repo>: The organization and repository name to clone from."
+}
+
+if [ "x$1" == "-h"] ; then
+	help
+else
+	clone $@
+fi

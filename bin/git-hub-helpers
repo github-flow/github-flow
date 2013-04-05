@@ -6,7 +6,7 @@ github(){
 	DATA=$2
 
 	AUTH="Authorization: token $(cat ~/.github_token)"
-	CURL="curl"
+	CURL="curl -vi"
 	if [ ! -z "$DATA" ] ; then
 		CURL="$CURL -d @$DATA"
 	fi
@@ -23,9 +23,17 @@ github_put(){
 	$CURL -X PUT -d "$2" -H "$AUTH" "$API$URL" 2>/dev/null
 }
 
+github_user(){
+	USERNAME=$(git config --get github-flow.username)
+	if [ $? -eq 1 ] ; then
+		read -p "Github username: " USERNAME
+		git config --global --add github-flow.username $USERNAME
+	fi
+	echo $USERNAME
+}
+
 github_login(){
-	read -p "Github username: " USERNAME
-	curl -u $USERNAME -d '{"scopes":["repo"],"note":"git-hub-flow"}' $API/authorizations | json token >| ~/.github_token
+	curl -u $(github_user) -d '{"scopes":["repo"],"note":"git-hub-flow"}' $API/authorizations | json token >| ~/.github_token
 }
 
 github_pr_number(){
@@ -36,11 +44,11 @@ EOF
 	echo $NUMBER
 }
 
-ORIGIN=origin
-UPSTREAM=origin
-MASTER=master
+ORIGIN=$(git config --get github-flow.origin)
+UPSTREAM=$(git config --get github-flow.upstream)
+MASTER=$(git config --get github-flow.master)
 
-GH_ORIGIN=$(git remote -v | grep $ORIGIN | head -1 | awk -F: '{print $2}' | awk -F. '{print $1'})
+GH_ORIGIN=$(git remote -v 2>/dev/null | grep $ORIGIN | head -1 | awk -F: '{print $2}' | awk -F. '{print $1'})
 GH_ORIGIN_USER=$(echo $GH_ORIGIN | awk -F/ '{print $1}')
-GH_UPSTREAM=$(git remote -v | grep $UPSTREAM | head -1 | awk -F: '{print $2}' | awk -F. '{print $1'})
+GH_UPSTREAM=$(git remote -v 2>/dev/null | grep $UPSTREAM | head -1 | awk -F: '{print $2}' | awk -F. '{print $1'})
 GH_UPSTREAM_USER=$(echo $GH_UPSTREAM | awk -F/ '{print $1}')
