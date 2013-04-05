@@ -12,6 +12,18 @@ publish(){
 	git push origin $BRANCH
 }
 
+update(){
+	CUR_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+	git stash
+	BRANCH=${1:-$CUR_BRANCH}
+	git checkout master
+	git pull --rebase origin master
+	git checkout $BRANCH
+	git rebase master
+	git checkout $CUR_BRANCH
+	git stash pop
+}
+
 usage(){
 	echo "$0:	Manage a github flow feature."
 }
@@ -21,6 +33,8 @@ help(){
 	echo ""
 	echo "	start <branchname>: Begin working on a new feature."
 	echo "	publish [branchname]: Publish branch to origin. Defaults to current branch."
+	echo "	update [branchname]: Pull changes from upstream into the development branch,"
+	echo "	                     then rebase the branch off development."
 	echo "	help: Show this message."
 }
 
@@ -29,6 +43,7 @@ shift
 case "$command" in
 	s | start) start $@ ;;
 	p | publish) publish $@ ;;
+	u | update) update $@ ;;
 	h | help) help ;;
 	*) usage ;;
 esac
