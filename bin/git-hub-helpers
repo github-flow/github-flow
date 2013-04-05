@@ -1,0 +1,37 @@
+#!/bin/bash
+
+API="https://api.github.com"
+github(){
+	URL=$1
+	DATA=$2
+
+	AUTH="Authorization: token $(cat ~/.github_token)"
+	CURL="curl"
+	if [ ! -z "$DATA" ] ; then
+		CURL="$CURL -d @$DATA"
+	fi
+
+	$CURL -H "$AUTH" "$API$URL" 2>/dev/null
+}
+
+github_login(){
+	read -p "Github username: " USERNAME
+	curl -u $USERNAME -d '{"scopes":["repo"],"note":"git-hub-flow"}' $API/authorizations | json token >| ~/.github_token
+}
+
+github_pr_number(){
+	BRANCH=$1
+	read NUMBER LABEL <<EOF
+$(github /repos/$GH_UPSTREAM/pulls | json -a number head.label | grep "$GH_ORIGIN_USER:$BRANCH")
+EOF
+	echo $NUMBER
+}
+
+ORIGIN=origin
+UPSTREAM=origin
+MASTER=master
+
+GH_ORIGIN=$(git remote -v | grep $ORIGIN | head -1 | awk -F: '{print $2}' | awk -F. '{print $1'})
+GH_ORIGIN_USER=$(echo $GH_ORIGIN | awk -F/ '{print $1}')
+GH_UPSTREAM=$(git remote -v | grep $UPSTREAM | head -1 | awk -F: '{print $2}' | awk -F. '{print $1'})
+GH_UPSTREAM_USER=$(echo $GH_UPSTREAM | awk -F/ '{print $1}')

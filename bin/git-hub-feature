@@ -1,0 +1,87 @@
+#!/bin/bash
+
+source git-hub-helpers
+
+start(){
+	BRANCH=$1
+	git branch $BRANCH $MASTER
+	git checkout $BRANCH
+}
+
+publish(){
+	CUR_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+	BRANCH=${1:-$CUR_BRANCH}
+
+	git hub-feature update $BRANCH
+
+	git push $ORIGIN $BRANCH
+}
+
+update(){
+	CUR_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+	git stash
+	BRANCH=${1:-$CUR_BRANCH}
+
+	git checkout $MASTER
+	git pull --rebase $UPSTREAM $MASTER
+	git checkout $BRANCH
+	git rebase $MASTER
+
+	git checkout $CUR_BRANCH
+	git stash pop
+}
+
+review(){
+	CUR_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+	git stash
+	BRANCH=${1:-$CUR_BRANCH}
+
+	git hub-feature publish $BRANCH
+
+	TITLE='"title":"'"$BRANCH: $(git log -1 --pretty=format:'%s')"'"'
+	BODY='"body":"'"$(git log --pretty=format:'%h - %s <%an>' $MASTER.. | sed ':a;N;s/\n/\\n/g;b a')"'"'
+	BASE='"base":"'"$GH_UPSTREAM_USER:$MASTER"'"'
+	BASE_SHA='"base_sha":"'"$(git rev-parse $MASTER)"'"'
+	HEAD='"head":"'"$GH_ORIGIN_USER:$BRANCH"'"'
+	HEAD_SHA='"head_sha":"'"$(git rev-parse $BRANCH)"'"'
+
+	echo "{$TITLE,$BODY,$BASE,$HEAD,$BASE_SHA,$HEAD_SHA}" >| .tmp_pr_req
+
+	github /repos/$GH_UPSTREAM/pulls .tmp_pr_req >| .tmp_pr_res
+
+	PULL_NUMBER=$(github_pr_number $BRANCH)
+	PULL_URL="http://github.com/$GH_UPSTREAM/pulls/$PULL_NUMBER"
+
+	echo "Pull request is at $PULL_URL"
+
+	rm .tmp_pr*
+
+	git checkout $CUR_BRANCH
+	git stash pop
+}
+
+usage(){
+	echo "$0:	Manage a github flow features."
+}
+
+help(){
+	usage
+	echo ""
+	echo "	start <branchname>: Begin working on a new feature."
+	echo "	publish [branchname]: Publish branch to origin. Defaults to current branch."
+	echo "	update [branchname]: Pull changes from upstream into the development branch,"
+	echo "	                     then rebase the branch off development."
+	echo "	review [branchname]: Create a pull request for a feature."
+	echo "	help: Show this message."
+}
+
+command=${1:-usage}
+shift
+case "$command" in
+	s | start) start $@ ;;
+	p | publish) publish $@ ;;
+	u | update) update $@ ;;
+	r | review) review $@ ;;
+	h | help) help ;;
+	*) usage ;;
+esac
