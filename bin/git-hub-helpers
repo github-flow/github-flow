@@ -14,6 +14,15 @@ github(){
 	$CURL -H "$AUTH" "$API$URL" 2>/dev/null
 }
 
+github_put(){
+	URL=$1
+
+	AUTH="Authorization: token $(cat ~/.github_token)"
+	CURL="curl"
+
+	$CURL -X PUT -d "$2" -H "$AUTH" "$API$URL" 2>/dev/null
+}
+
 github_login(){
 	read -p "Github username: " USERNAME
 	curl -u $USERNAME -d '{"scopes":["repo"],"note":"git-hub-flow"}' $API/authorizations | json token >| ~/.github_token
