@@ -11,6 +11,9 @@ start(){
 publish(){
 	CUR_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 	BRANCH=${1:-$CUR_BRANCH}
+
+	git hub-feature update $BRANCH
+
 	git push $ORIGIN $BRANCH
 }
 
@@ -33,8 +36,7 @@ review(){
 	git stash
 	BRANCH=${1:-$CUR_BRANCH}
 
-	# git hub-feature update $BRANCH
-	# git hub-feature publish $BRANCH
+	git hub-feature publish $BRANCH
 
 	TITLE='"title":"'"$BRANCH: $(git log -1 --pretty=format:'%s')"'"'
 	BODY='"body":"'"$(git log --pretty=format:'%h - %s <%an>' $MASTER.. | sed ':a;N;s/\n/\\n/g;b a')"'"'
