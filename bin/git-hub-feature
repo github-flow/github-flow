@@ -1,15 +1,15 @@
 #!/bin/sh
 
 start(){
-	branch=$1
-	git branch $branch master
-	git checkout $branch
+	BRANCH=$1
+	git branch $BRANCH master
+	git checkout $BRANCH
 }
 
 publish(){
-	cur_branch=$(git rev-parse --abbrev-ref HEAD)
-	branch=${1:-$cur_branch}
-	git push origin $branch
+	CUR_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+	BRANCH=${1:-$CUR_BRANCH}
+	git push origin $BRANCH
 }
 
 usage(){
