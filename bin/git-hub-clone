@@ -13,7 +13,7 @@ clone(){
 
 	git clone git@github.com:$USER/$REPO.git
 	cd $REPO
-	git remote add upstream git@github.com/$FULL_REPO.git
+	git remote add upstream git@github.com:$FULL_REPO.git
 
 	git config --local --add github-flow.origin origin
 	git config --local --add github-flow.upstream upstream
