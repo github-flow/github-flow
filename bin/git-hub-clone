@@ -1,9 +1,8 @@
 #!/bin/bash
 
-set -x
-
 source git-hub-helpers
 
+# Safely 
 _fork(){
 	local FULL_REPO=$1
 	local REPO=$2
@@ -11,15 +10,17 @@ _fork(){
 
 	github /repos/$FULL_REPO/forks >| .tmp_forks
 
-	if cat .tmp_forks | json -a owner.login | grep DavidSouther ; then
-		echo "Fork exists" >/dev/null
+	if [ ! $(cat .tmp_forks | json -a owner.login | grep DavidSouther) ; then
 	else
 		github /repos/$FULL_REPO/forks .tmp_fork
-		echo "Sleeping for a moment, to let github register the fork." && sleep 1
+		# Sleep for a moment, to let github register the fork.
+		sleep 1
 	fi
+	echo "Fork at https://github.com/$USER/$REPO"
 	rm .tmp_fork*
 }
 
+# Clone the repo and set a variety of --local config options for github-flow.
 clone(){
 	local FULL_REPO=$1
 	local REPO=$(echo $FULL_REPO | awk -F/ '{print $2}')
@@ -27,7 +28,7 @@ clone(){
 
 	_fork $FULL_REPO $REPO $USER
 
-	git clone git@github.com:$USER/$REPO.git
+	git clone git@github.com:$USER/$REPO.git 2>&1 >/dev/null
 	cd $REPO
 	git remote add upstream git@github.com:$FULL_REPO.git
 

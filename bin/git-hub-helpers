@@ -10,7 +10,7 @@ github(){
 	DATA=$2
 
 	AUTH="Authorization: token $(cat ~/.github_token)"
-	CURL="curl -vi"
+	CURL="curl"
 	if [ ! -z "$DATA" ] ; then
 		CURL="$CURL -d @$DATA"
 	fi
@@ -28,6 +28,7 @@ github_put(){
 	$CURL -X PUT -d "$2" -H "$AUTH" "$API$URL"
 }
 
+# Try and get the username. Read and set it if it is unset.
 github_user(){
 	USERNAME=$(git config --get github-flow.username)
 	if [ $? -eq 1 ] ; then
@@ -37,6 +38,7 @@ github_user(){
 	echo $USERNAME
 }
 
+# Get an access token.
 github_login(){
 	curl -u $(github_user) -d '{"scopes":["repo"],"note":"git-hub-flow"}' $API/authorizations | json token >| ~/.github_token
 }
@@ -50,28 +52,35 @@ EOF
 	echo $NUMBER
 }
 
+# 1-Semaphore for stash stack.
 TIMES_STASHED=0
 _stash(){
-	git stash | fgrep "working directory clean" && TIMES_STASHED=1
+	git stash | fgrep "working directory clean" >/dev/null && TIMES_STASHED=1
 	TIMES_STASHED=$((TIMES_STASHED + 1))
 }
 
 _stash_pop(){
 	TIMES_STASHED=$((TIMES_STASHED - 1))
-	[ $TIMES_STASHED -le 0 ] && git stash pop
+	[ $TIMES_STASHED -le 0 ] && git stash pop 2>&1 >/dev/null
 }
 
+# Get some config info.
 ORIGIN=$(git config --get github-flow.origin)
 UPSTREAM=$(git config --get github-flow.upstream)
 MASTER=$(git config --get github-flow.master)
 
+# Helper to get an "OWNER/REPO" string.
 find_repo(){
 	while read line ; do
 		echo $line | sed -e 's!^.*git@github.com[/:]!!' -e 's!\.git.*$!!'
 	done
 }
 
+# Get the info about the repos.
 GH_ORIGIN=$(git remote -v 2>/dev/null | grep $ORIGIN | head -1 | find_repo)
 GH_ORIGIN_USER=$(echo $GH_ORIGIN | awk -F/ '{print $1}')
 GH_UPSTREAM=$(git remote -v 2>/dev/null | grep $UPSTREAM | head -1 | find_repo)
 GH_UPSTREAM_USER=$(echo $GH_UPSTREAM | awk -F/ '{print $1}')
+
+# Always starting on some branch.
+CUR_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)

@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -x
-
 source git-hub-helpers
 
 # Begin working on a new feature
@@ -14,24 +12,25 @@ start(){
 
 # Make the feature branch available on the user's fork.
 publish(){
-	CUR_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 	BRANCH=${1:-$CUR_BRANCH}
 
 	git hub-feature update $BRANCH
 
-	git push --force $ORIGIN $BRANCH
+	echo "Forcing updates to https://github.com/$GH_ORIGIN/tree/$BRANCH"
+	git push --force $ORIGIN $BRANCH >/dev/null
 }
 
 # Get all updates from upstream into the current branch.
 # Can cause merge conflicts, when rebasing and when poping the stash.
 update(){
-	CUR_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 	_stash
 	BRANCH=${1:-$CUR_BRANCH}
 
 	git checkout $MASTER
-	git pull --rebase $UPSTREAM $MASTER
-	git checkout $BRANCH
+	echo "Rebasing upstream updates into master..."
+	git pull --rebase $UPSTREAM $MASTER >/dev/null
+	echo "Rebasing master into $BRANCH..."
+	git checkout $BRANCH >/dev/null
 	git rebase $MASTER
 
 	if [ $CUR_BRANCH != $BRANCH ] ; then
@@ -43,27 +42,31 @@ update(){
 
 # Create a pull request to review the feature branch.
 review(){
-	CUR_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 	BRANCH=${1:-$CUR_BRANCH}
 
 	git hub-feature publish $BRANCH
 
-	TITLE='"title":"'"$BRANCH: $(git log -1 --pretty=format:'%s')"'"'
-	BODY='"body":"'"$(git log --pretty=format:'%h - %s <%an>' $MASTER.. | sed ':a;N;s/\n/\\n/g;b a')"'"'
-	BASE='"base":"'"$GH_UPSTREAM_USER:$MASTER"'"'
-	BASE_SHA='"base_sha":"'"$(git rev-parse $MASTER)"'"'
-	HEAD='"head":"'"$GH_ORIGIN_USER:$BRANCH"'"'
-	HEAD_SHA='"head_sha":"'"$(git rev-parse $BRANCH)"'"'
-
-	echo "{$TITLE,$BODY,$BASE,$HEAD,$BASE_SHA,$HEAD_SHA}" >| .tmp_pr_req
-
-	github /repos/$GH_UPSTREAM/pulls .tmp_pr_req >| .tmp_pr_res
-
-	cat .tmp_pr_res
-
 	PULL_NUMBER=$(github_pr_number $BRANCH)
-	PULL_URL="http://github.com/$GH_UPSTREAM/pull/$PULL_NUMBER"
 
+	# Check if the PR already exists
+	if [ -z "$PULL_NUMBER" ] ; then
+		# Prepare the JSON for the pull request.
+		# The title is the most recent commit message at time of starting the review.
+		TITLE='"title":"'"$BRANCH: $(git log -1 --pretty=format:'%s')"'"'
+		BODY='"body":"'"$(git log --pretty=format:'%h - %s <%an>' $MASTER.. | sed ':a;N;s/\n/\\n/g;b a')"'"'
+		BASE='"base":"'"$GH_UPSTREAM_USER:$MASTER"'"'
+		BASE_SHA='"base_sha":"'"$(git rev-parse $MASTER)"'"'
+		HEAD='"head":"'"$GH_ORIGIN_USER:$BRANCH"'"'
+		HEAD_SHA='"head_sha":"'"$(git rev-parse $BRANCH)"'"'
+
+		echo "{$TITLE,$BODY,$BASE,$HEAD,$BASE_SHA,$HEAD_SHA}" >| .tmp_pr_req
+
+		github /repos/$GH_UPSTREAM/pulls .tmp_pr_req >| .tmp_pr_res
+
+		PULL_NUMBER=$(github_pr_number $BRANCH)
+	fi
+
+	PULL_URL="http://github.com/$GH_UPSTREAM/pull/$PULL_NUMBER"
 
 	echo "Pull request is at $PULL_URL"
 
@@ -72,7 +75,6 @@ review(){
 
 # Close the feature branch, if it is mergeable.
 finish(){
-	CUR_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 	BRANCH=${1:-$CUR_BRANCH}
 
 	git hub-feature publish $BRANCH
@@ -84,7 +86,7 @@ finish(){
 	if [ "x$(cat .tmp_merge | json merged)" == "xtrue" ] ; then
 		echo "Pull request $PULL_NUMBER successfully merged."
 		_stash
-		git checkout $MASTER
+		git checkout $MASTER >/dev/null
 		_stash_pop
 
 		git pull --rebase $UPSTREAM $MASTER
