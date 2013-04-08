@@ -10,8 +10,7 @@ _fork(){
 
 	github /repos/$FULL_REPO/forks >| .tmp_forks
 
-	if [ ! $(cat .tmp_forks | json -a owner.login | grep DavidSouther) ; then
-	else
+	if [ ! $(cat .tmp_forks | json -a owner.login | fgrep "$(github_user)") ] ; then
 		github /repos/$FULL_REPO/forks .tmp_fork
 		# Sleep for a moment, to let github register the fork.
 		sleep 1
@@ -28,7 +27,7 @@ clone(){
 
 	_fork $FULL_REPO $REPO $USER
 
-	git clone git@github.com:$USER/$REPO.git 2>&1 >/dev/null
+	git clone $Q git@github.com:$USER/$REPO.git 2>&1 >/dev/null
 	cd $REPO
 	git remote add upstream git@github.com:$FULL_REPO.git
 
@@ -49,7 +48,7 @@ help(){
 	echo "	<org/repo>: The organization and repository name to clone from."
 }
 
-if [ "x$1" == "-h"] ; then
+if [ "x$1" == "-h" ] ; then
 	help
 else
 	clone $@
