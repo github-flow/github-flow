@@ -17,7 +17,7 @@ publish(){
 	git hub-feature update $BRANCH
 
 	echo "Forcing updates to https://github.com/$GH_ORIGIN/tree/$BRANCH"
-	git push --force $ORIGIN $BRANCH >/dev/null
+	git push --force $ORIGIN $BRANCH  2>&1 >/dev/null
 }
 
 # Get all updates from upstream into the current branch.
@@ -28,7 +28,7 @@ update(){
 
 	git checkout $MASTER
 	echo "Rebasing upstream updates into master..."
-	git pull --rebase $UPSTREAM $MASTER >/dev/null
+	git pull --rebase $UPSTREAM $MASTER 2>&1 >/dev/null
 	echo "Rebasing master into $BRANCH..."
 	git checkout $BRANCH >/dev/null
 	git rebase $MASTER
