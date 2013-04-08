@@ -19,7 +19,7 @@ publish(){
 
 update(){
 	CUR_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-	git stash
+	_stash
 	BRANCH=${1:-$CUR_BRANCH}
 
 	git checkout $MASTER
@@ -28,7 +28,7 @@ update(){
 	git rebase $MASTER
 
 	git checkout $CUR_BRANCH
-	git stash pop
+	_stash_pop
 }
 
 review(){
@@ -68,10 +68,12 @@ finish(){
 
 	if [ "x$(cat .tmp_merge | json merged)" == "xtrue" ] ; then
 		echo "Pull request $PULL_NUMBER successfully merged."
+		_stash
 		git checkout $MASTER
 		git pull --rebase $UPSTREAM $MASTER
 		git push $ORIGIN :$BRANCH
 		git branch -D $BRANCH
+		_stash_pop
 	else
 		cat .tmp_merge | json message
 	fi
