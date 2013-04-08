@@ -1,5 +1,7 @@
 #!/bin/bash
 
+Q="--quiet"
+
 API="https://api.github.com"
 # Run a GET or POST request against the Github API
 # First param is the API endpoint to hit

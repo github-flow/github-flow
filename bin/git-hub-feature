@@ -17,7 +17,7 @@ publish(){
 	git hub-feature update $BRANCH
 
 	echo "Forcing updates to https://github.com/$GH_ORIGIN/tree/$BRANCH"
-	git push --force $ORIGIN $BRANCH  2>&1 >/dev/null
+	git push $Q --force $ORIGIN $BRANCH
 }
 
 # Get all updates from upstream into the current branch.
@@ -28,13 +28,13 @@ update(){
 
 	git checkout $MASTER
 	echo "Rebasing upstream updates into master..."
-	git pull --rebase $UPSTREAM $MASTER 2>&1 >/dev/null
+	git pull $Q --rebase $UPSTREAM $MASTER
 	echo "Rebasing master into $BRANCH..."
-	git checkout $BRANCH >/dev/null
-	git rebase $MASTER
+	git checkout $Q $BRANCH
+	git rebase $Q $MASTER
 
 	if [ $CUR_BRANCH != $BRANCH ] ; then
-		git checkout $CUR_BRANCH
+		git checkout $Q $CUR_BRANCH
 	fi
 
 	_stash_pop
@@ -86,12 +86,12 @@ finish(){
 	if [ "x$(cat .tmp_merge | json merged)" == "xtrue" ] ; then
 		echo "Pull request $PULL_NUMBER successfully merged."
 		_stash
-		git checkout $MASTER >/dev/null
+		git checkout $Q $MASTER >/dev/null
 		_stash_pop
 
-		git pull --rebase $UPSTREAM $MASTER
-		git push $ORIGIN :$BRANCH
-		git branch -D $BRANCH
+		git pull $Q --rebase $UPSTREAM $MASTER
+		git push $Q $ORIGIN :$BRANCH
+		git branch $Q -D $BRANCH
 	else
 		cat .tmp_merge | json message
 	fi
