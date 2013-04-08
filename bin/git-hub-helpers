@@ -60,7 +60,13 @@ ORIGIN=$(git config --get github-flow.origin)
 UPSTREAM=$(git config --get github-flow.upstream)
 MASTER=$(git config --get github-flow.master)
 
-GH_ORIGIN=$(git remote -v 2>/dev/null | grep $ORIGIN | head -1 | awk -F: '{print $2}' | awk -F. '{print $1'})
+find_repo(){
+	while read line ; do
+		echo $line | sed -e 's!^.*git@github.com[/:]!!' -e 's!\.git.*$!!'
+	done
+}
+
+GH_ORIGIN=$(git remote -v 2>/dev/null | grep $ORIGIN | head -1 | find_repo)
 GH_ORIGIN_USER=$(echo $GH_ORIGIN | awk -F/ '{print $1}')
-GH_UPSTREAM=$(git remote -v 2>/dev/null | grep $UPSTREAM | head -1 | awk -F: '{print $2}' | awk -F. '{print $1'})
+GH_UPSTREAM=$(git remote -v 2>/dev/null | grep $UPSTREAM | head -1 | find_repo)
 GH_UPSTREAM_USER=$(echo $GH_UPSTREAM | awk -F/ '{print $1}')
