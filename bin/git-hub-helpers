@@ -79,9 +79,9 @@ find_repo(){
 }
 
 # Get the info about the repos.
-GH_ORIGIN=$(git remote -v 2>/dev/null | grep $ORIGIN | head -1 | find_repo)
+GH_ORIGIN=$(git remote -v 2>/dev/null | fgrep "$ORIGIN" | head -1 | find_repo)
 GH_ORIGIN_USER=$(echo $GH_ORIGIN | awk -F/ '{print $1}')
-GH_UPSTREAM=$(git remote -v 2>/dev/null | grep $UPSTREAM | head -1 | find_repo)
+GH_UPSTREAM=$(git remote -v 2>/dev/null | fgrep "$UPSTREAM" | head -1 | find_repo)
 GH_UPSTREAM_USER=$(echo $GH_UPSTREAM | awk -F/ '{print $1}')
 
 # Always starting on some branch.

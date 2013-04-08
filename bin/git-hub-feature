@@ -4,6 +4,7 @@ source git-hub-helpers
 
 # Begin working on a new feature
 start(){
+	BRANCH=${1:?"Please specify a branch name."}
 	git stash
 	# Just a semantic `git checkout -b $BRANCH $MASTER`
 	git checkout -b $BRANCH $MASTER
