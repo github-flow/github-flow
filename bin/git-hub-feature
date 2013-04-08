@@ -49,7 +49,7 @@ review(){
 	github /repos/$GH_UPSTREAM/pulls .tmp_pr_req >| .tmp_pr_res
 
 	PULL_NUMBER=$(github_pr_number $BRANCH)
-	PULL_URL="http://github.com/$GH_UPSTREAM/pulls/$PULL_NUMBER"
+	PULL_URL="http://github.com/$GH_UPSTREAM/pull/$PULL_NUMBER"
 
 	echo "Pull request is at $PULL_URL"
 
