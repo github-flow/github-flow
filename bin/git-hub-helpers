@@ -44,6 +44,18 @@ EOF
 	echo $NUMBER
 }
 
+
+TIMES_STASHED=0
+_stash(){
+	git stash | fgrep "working directory clean" && TIMES_STASHED=1
+	TIMES_STASHED=$((TIMES_STASHED + 1))
+}
+
+_stash_pop(){
+	TIMES_STASHED=$((TIMES_STASHED - 1))
+	[ $TIMES_STASHED -le 0 ] && git stash pop
+}
+
 ORIGIN=$(git config --get github-flow.origin)
 UPSTREAM=$(git config --get github-flow.upstream)
 MASTER=$(git config --get github-flow.master)
