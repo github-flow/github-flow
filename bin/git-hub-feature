@@ -14,7 +14,7 @@ publish(){
 
 	git hub-feature update $BRANCH
 
-	git push $ORIGIN $BRANCH
+	git push --force $ORIGIN $BRANCH
 }
 
 update(){
