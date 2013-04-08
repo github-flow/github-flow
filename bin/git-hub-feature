@@ -27,7 +27,9 @@ update(){
 	git checkout $BRANCH
 	git rebase $MASTER
 
-	git checkout $CUR_BRANCH
+	if [ $CUR_BRANCH != $BRANCH ] ; then
+		git checkout $CUR_BRANCH
+	fi
 	_stash_pop
 }
 
