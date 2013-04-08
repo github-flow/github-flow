@@ -47,7 +47,7 @@ EOF
 
 TIMES_STASHED=0
 _stash(){
-	git stash
+	git stash | fgrep "working directory clean" && TIMES_STASHED=1
 	TIMES_STASHED=$((TIMES_STASHED + 1))
 }
 
