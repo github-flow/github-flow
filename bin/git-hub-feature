@@ -3,9 +3,10 @@
 source git-hub-helpers
 
 start(){
-	BRANCH=$1
-	git branch $BRANCH $MASTER
-	git checkout $BRANCH
+	local BRANCH=$1
+	git stash
+	git checkout -b $BRANCH $MASTER
+	git stash pop
 }
 
 publish(){
