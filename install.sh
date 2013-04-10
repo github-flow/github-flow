@@ -1,6 +1,6 @@
 #!/bin/bash
 
-INSTALL_DIR=${1:-"~/"}
+INSTALL_DIR=${1:-$HOME}
 
 echo "Installing into $INSTALL_DIR/.ghf"
 
@@ -15,7 +15,7 @@ if [ -d .ghf ] ; then
 	echo "github-flow already installed, updating from origin."
 	git pull origin master
 else
-	git clone git://github.com/github-flow/github-flow.git .ghf
+	git clone https://github.com/github-flow/github-flow.git .ghf
 fi
 
 # Only modify the path if the newly installed ghf doesn't exist.
@@ -24,9 +24,11 @@ if [ ! $(echo $PATH | fgrep "$INSTALL_DIR/.ghf/bin") ] ; then
 
 	echo "PATH was '$PATH'"
 
-	echo "PATH=$INSTALL_DIR/.ghf/bin:$PATH" >| ~/.bashrc
+	echo "PATH=$INSTALL_DIR/.ghf/bin:\$PATH" >> ~/.bashrc
 
 	source ~/.bashrc
 
 	echo "PATH is '$PATH'"
+
+	echo "source ~/.bashrc to update path in the current shell."
 fi
