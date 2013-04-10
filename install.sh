@@ -24,7 +24,7 @@ if [ ! $(echo $PATH | fgrep "$INSTALL_DIR/.ghf/bin") ] ; then
 
 	echo "PATH was '$PATH'"
 
-	echo "PATH=$INSTALL_DIR/.ghf/bin:$PATH" >> ~/.bashrc
+	echo "PATH=$INSTALL_DIR/.ghf/bin:\$PATH" >> ~/.bashrc
 
 	source ~/.bashrc
 
