@@ -11,6 +11,8 @@ github(){
 	URL=$1
 	DATA=$2
 
+	github_login
+
 	AUTH="Authorization: token $(cat ~/.github_token)"
 	CURL="curl"
 	if [ ! -z "$DATA" ] ; then
@@ -42,7 +44,7 @@ github_user(){
 
 # Get an access token.
 github_login(){
-	curl -u $(github_user) -d '{"scopes":["repo"],"note":"git-hub-flow"}' $API/authorizations | json token >| ~/.github_token
+	[ -f ~/.github_token ] || curl -u $(github_user) -d '{"scopes":["repo"],"note":"git-hub-flow"}' $API/authorizations | json token >| ~/.github_token
 }
 
 # Find the pr number from the current branch.
