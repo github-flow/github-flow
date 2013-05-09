@@ -9,7 +9,7 @@ Installation
 To install, run the installation script:
 
 ```
-curl https://raw.github.com/github-flow/github-flow/v1.0/install.sh | $(which bash)
+curl https://raw.github.com/github-flow/github-flow/v1.1/install.sh | $(which bash)
 ```
 
 To update, run the install script again.
