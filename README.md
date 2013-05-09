@@ -35,6 +35,12 @@ Usage is very similar to git-flow
 
 All commands with `[feature]` either take a parameter to specify the branch, or work off the current (non-`master`) branch.
 
+
+Configuration
+-------------
+
+Repositories are configured using three properties under `github-flow`: `origin`, `upstream`, and `master`. Origin and upstream are the logical remotes. `upstream` is the canonical upstream project, usually owned by an organization. `origin` is the users' fork, generally owned by the user's account. 'master' is the logical primary development branch, usually either "master" or "develop". By default, the values are the same as their keys. To use the traditional git-flow model of branching and working off develop, in a local repository run `git config --local --set github-flow.master develop`
+
 TODO, Bugs
 ----------
 
